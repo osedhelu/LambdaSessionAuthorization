@@ -1,9 +1,9 @@
-const UsersValiator = require('../data/UserSchema')
+const {User} = require('../data/UserSchema')
 
 const validateNewUser =  async(user)=>{
 
 	console.log(user);
-let users = new UsersValiator({
+let users = new User({
 	user: user.user,
 	password: user.password,
 	rol: user.rol
@@ -14,18 +14,8 @@ return users
 }
 
 
-const customLogin = async (user, password)=>{
-	 try {
-        const userName = await UsersValiator.findByCredentials(user, password)
-        const token = await UsersValiator.generateAuthToken()
-	console.log("estamos en Validator",token);
-        return { user, token }
-    } catch (e) {
-        throw e
-    }
 
-}
-module.exports = {validateNewUser, customLogin };
+module.exports = {validateNewUser};
 
 
 

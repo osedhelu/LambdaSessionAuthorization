@@ -46,6 +46,9 @@ Resources:
   loginUsers:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+       Variables:
+        PRIVATE_KEY: 'MY_KEY'
       CodeUri: session/
       Handler: app.login
       Events:
@@ -57,6 +60,7 @@ Resources:
             RestApiId: !Ref MyApi
             Auth:
               Authorizer: NONE
+            
                           
   Authorizationfunction:
     Type: AWS::Serverless::Function

@@ -1,11 +1,9 @@
 const jwt = require("jsonwebtoken")
 require("./db/mongoose");
 
-const  {saveUser} = require("./data/SessionData");
 const {convertToResponse,convertToError} = require("./core/Utils")
 const {generateAuthResponse,userHasPermission } = require("./lambda/auth")
-const {customLogin} = require("./core/Validator")
-const {createUser} = require("./core/Session")
+const {createUser, customLogin} = require("./core/Session")
 
 
 

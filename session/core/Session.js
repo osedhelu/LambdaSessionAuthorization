@@ -1,6 +1,6 @@
 
 const {validateNewUser} = require('./Validator')
-const {saveUser,loginUser} = require('../data/SessionData')
+const {saveUser, authenticateCredentials} = require('../data/SessionData')
 const {passwordHasher} = require('./Hasher')
 
 
@@ -17,7 +17,12 @@ const createUser = (user)=>{
    return validateNewUser(user)
    .then((validatedUser) => saveUser(validatedUser));
 }
+
+const customLogin = async (user, password)=>{
+    return authenticateCredentials(user, password);
+
+}
 module.exports = {
-    createUser
+    createUser, customLogin
 }
 
