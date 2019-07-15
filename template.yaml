@@ -4,51 +4,81 @@ Description: >
   sessionProject
 
   Sample SAM Template for sessionProject
-  
+
+Parameters:
+  Stage:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - local
+      - staging
+      - prod
+  NAMEBUCKENT:
+    Type: String
+    Default: SessionDAnielapps
+
+
+
+
 Globals:
   Function:
     Timeout: 300
     MemorySize: 1024
     Runtime: nodejs8.10
+    Environment:
+     Variables:
+      PRIVATE_KEY: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCezqIzLGQbTJiy8mSWl7ifYfM1PUZsQoRdiZawwR7M9+XmGPxQR5VqOd3ACWHRy7Ffdfjz16nm2XILLZeVpXWfxLq3tPzXlG+tmSTt9lxsqHZC5pH3CLq2/PHVLXQmv97psI1ddGmzhDCzB0H/7imWhKPciMbz4J2GSCC5njGkp3BhbLBl7Id5vx/dd8afRl5mzf/JZs07dM4F5fwryzLyiDxgAPId71/ocd/Q5vBpQiAtisN/vBJrzaewbI7iQ5P1ze5mQ0ukfiC64JoHMcyTrMY2yd/0zACcyWQSD3c1DExVb2wWquSrrQSnhGtNp8Q8J2zrnZqxoD6fLejU887/
+'
+      STAGE_ENV: !Ref Stage
+      PROD_DATABASE_URL: 'mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net/test?retryWrites=true&w=majority'
+      STAGING_DATABASE_URL: 'mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net/test?retryWrites=true&w=majority'
+      # ID_API: "1glnmvn2g7"
 
+
+      
 Resources:
   MyApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: !Ref Stage
       Auth:
-        DefaultAuthorizer: lamodaesteneruntokenentusession
+        DefaultAuthorizer: sessionAuthorice
         Authorizers:
-          lamodaesteneruntokenentusession:
+          sessionAuthorice:
             FunctionArn: !GetAtt Authorizationfunction.Arn
             
   saveUsers:
     Type: AWS::Serverless::Function
     Properties:
+      # Policies:
+      #  - AWSLambdaExecute # Managed Policy
+      #  - Version: '2012-10-17' # Policy Document
+      #    Statement:
+      #      - Effect: Allow
+      #        Action:
+      #          - s3:GetObject
+      #          - s3:GetObjectACL
+      #        Resource: !Sub 'arn:aws:s3:::${NAMEBUCKENT}/*'
       CodeUri: session/ 
       Handler: app.handler
       Events:
-        addUsers:
+         addUsers:
           Type: Api 
           Properties:
             Path: /session/signup
             Method: post
             RestApiId: !Ref MyApi
-        # listUsers:
-        #     Type: Api 
-        #     Properties:
-        #       Path: /session/signup
-        #       Method: get
-        #       RestApiId: !Ref MyApi
-    
+         GetUsers:
+          Type: Api 
+          Properties:
+            Path: /session/signup
+            Method: get
+            RestApiId: !Ref MyApi
 
 
   loginUsers:
     Type: AWS::Serverless::Function
     Properties:
-      Environment:
-       Variables:
-        PRIVATE_KEY: 'MY_KEY'
       CodeUri: session/
       Handler: app.login
       Events:
@@ -66,38 +96,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: session/
-      Handler: app.auth
-
-
+      Handler: auth.auth
+      # Environment:
+        # Variables:
+          # URLEXECUTE: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:1glnmvn2g7/staging/POST/session/signup'
+ 
+      # CidrBlock: !Select [ 0, !Ref DbSubnetIpBlocks ]
 Outputs:
-  saveUsersApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/signup"
-  
-  saveUsers:
-    Description: "this api helps us create the user"
-    Value: !GetAtt saveUsers.Arn
-  saveUsersIamRole:
-    Description: "Implicit IAM Role created for saveUsers function"
-    Value: !GetAtt saveUsersRole.Arn
-  
-  loginUsersApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/login"
-  
-  loginUsers: 
-    Description: "this api helps us access the system and generate a token"
-    Value: !GetAtt loginUsers.Arn
-  loginUsersIamRole:
-    Description: "Implicit IAM Role created for loginUsers function"
-    Value: !GetAtt loginUsersRole.Arn
-
-  AuthorizationfunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/auth"
-  Authorizationfunction:
-    Description: "function autentication"
-    Value: !GetAtt Authorizationfunction.Arn
-  AuthorizationfunctionIamRole:
-    Description: "function permisos autentication"
-    Value: !GetAtt AuthorizationfunctionRole.Arn
+    ARN1:
+      Description: "API ID"
+      Value: !Sub 'arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${AWS::StackId}'  

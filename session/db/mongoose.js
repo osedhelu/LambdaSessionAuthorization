@@ -1,7 +1,15 @@
 const mongoose = require("mongoose");
 // const tableDB = "test"
+var conection 
+const env = process.env;
+if(env.STAGE_ENV == 'staging'){
+	conection = env.STAGING_DATABASE_URL
+}if(env.STAGE_ENV == 'prod'){
+	conection ==  env.PROD_DATABASE_URL
+}
+console.log(conection);
 
-mongoose.connect(`mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net/test?retryWrites=true&w=majority`, {
+mongoose.connect(conection, {
         useNewUrlParser:true,
         useCreateIndex:true
     }, (err,resp) => {
@@ -11,3 +19,4 @@ mongoose.connect(`mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net
        }
        console.log("connection - Online");
     });
+

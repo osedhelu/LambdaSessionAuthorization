@@ -2,8 +2,8 @@ const bcrypt = require("bcrypt")
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken")
-
-const userSchema = new mongoose.Schema({
+const TABLE_USERS = "users"
+const userShema = new mongoose.Schema({
     user: {
          type: String,
          unique: [true,"El usuario no puede Ser igual"],
@@ -37,35 +37,7 @@ const userSchema = new mongoose.Schema({
     }]
 }, { versionKey: false })  
 
-// userSchema.methods.generateAuthToken = async function () {
-//     const user = this;
-//     const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
-
-//     user.tokens = user.tokens.concat({ token })
-//     await user.save()
-
-//     return token
-// }
-
-// userSchema.statics.findByCredentials = async (user, password) => {
-//     console.log(user);
-//     const users = await User.findOne({ user })
-
-//     if (!user) {
-//         throw new Error('users Unable to login')
-//     }
-
-//     const isMatch = await bcrypt.compare(password, users.password)
-
-//     if (!isMatch) {
-//         throw new Error('Unable to login')
-//     }
-
-//     return users
-// }
-
-// Hash the plain text password before saving
-userSchema.pre('save', async function (next) {
+userShema.pre('save', async function (next) {
     const user = this
 
     if (user.isModified('password')) {
@@ -74,5 +46,7 @@ userSchema.pre('save', async function (next) {
 
     next()
 })
- const User = mongoose.model("users", userSchema     );
+
+
+ const User = mongoose.model(TABLE_USERS, userShema );
 module.exports = {User}

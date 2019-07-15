@@ -5,20 +5,39 @@ Description: 'sessionProject
   Sample SAM Template for sessionProject
 
   '
+Parameters:
+  Stage:
+    Type: String
+    Default: staging
+    AllowedValues:
+    - local
+    - staging
+    - prod
+  NAMEBUCKENT:
+    Type: String
+    Default: SessionDAnielapps
 Globals:
   Function:
     Timeout: 300
     MemorySize: 1024
     Runtime: nodejs8.10
+    Environment:
+      Variables:
+        PRIVATE_KEY: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCezqIzLGQbTJiy8mSWl7ifYfM1PUZsQoRdiZawwR7M9+XmGPxQR5VqOd3ACWHRy7Ffdfjz16nm2XILLZeVpXWfxLq3tPzXlG+tmSTt9lxsqHZC5pH3CLq2/PHVLXQmv97psI1ddGmzhDCzB0H/7imWhKPciMbz4J2GSCC5njGkp3BhbLBl7Id5vx/dd8afRl5mzf/JZs07dM4F5fwryzLyiDxgAPId71/ocd/Q5vBpQiAtisN/vBJrzaewbI7iQ5P1ze5mQ0ukfiC64JoHMcyTrMY2yd/0zACcyWQSD3c1DExVb2wWquSrrQSnhGtNp8Q8J2zrnZqxoD6fLejU887/ '
+        STAGE_ENV:
+          Ref: Stage
+        PROD_DATABASE_URL: mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net/test?retryWrites=true&w=majority
+        STAGING_DATABASE_URL: mongodb+srv://danielapps:danielapps@cluster0-mpguq.mongodb.net/test?retryWrites=true&w=majority
 Resources:
   MyApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName:
+        Ref: Stage
       Auth:
-        DefaultAuthorizer: lamodaesteneruntokenentusession
+        DefaultAuthorizer: sessionAuthorice
         Authorizers:
-          lamodaesteneruntokenentusession:
+          sessionAuthorice:
             FunctionArn:
               Fn::GetAtt:
               - Authorizationfunction
@@ -26,7 +45,7 @@ Resources:
   saveUsers:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://resizeimageinit/4f07359a1e9bd81dfa1c55a1edbd1534
+      CodeUri: s3://resizeimageinit/77d7de19057cdbbd4d8ccccce8458a67
       Handler: app.handler
       Events:
         addUsers:
@@ -36,7 +55,7 @@ Resources:
             Method: post
             RestApiId:
               Ref: MyApi
-        listUsers:
+        GetUsers:
           Type: Api
           Properties:
             Path: /session/signup
@@ -46,7 +65,7 @@ Resources:
   loginUsers:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://resizeimageinit/4f07359a1e9bd81dfa1c55a1edbd1534
+      CodeUri: s3://resizeimageinit/77d7de19057cdbbd4d8ccccce8458a67
       Handler: app.login
       Events:
         GetRoot:
@@ -61,54 +80,10 @@ Resources:
   Authorizationfunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://resizeimageinit/4f07359a1e9bd81dfa1c55a1edbd1534
-      Handler: app.auth
+      CodeUri: s3://resizeimageinit/77d7de19057cdbbd4d8ccccce8458a67
+      Handler: auth.auth
 Outputs:
-  saveUsersApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
+  ARN1:
+    Description: API ID
     Value:
-      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/signup
-  saveUsers:
-    Description: this api helps us create the user
-    Value:
-      Fn::GetAtt:
-      - saveUsers
-      - Arn
-  saveUsersIamRole:
-    Description: Implicit IAM Role created for saveUsers function
-    Value:
-      Fn::GetAtt:
-      - saveUsersRole
-      - Arn
-  loginUsersApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value:
-      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/login
-  loginUsers:
-    Description: this api helps us access the system and generate a token
-    Value:
-      Fn::GetAtt:
-      - loginUsers
-      - Arn
-  loginUsersIamRole:
-    Description: Implicit IAM Role created for loginUsers function
-    Value:
-      Fn::GetAtt:
-      - loginUsersRole
-      - Arn
-  AuthorizationfunctionApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value:
-      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/session/auth
-  Authorizationfunction:
-    Description: function autentication
-    Value:
-      Fn::GetAtt:
-      - Authorizationfunction
-      - Arn
-  AuthorizationfunctionIamRole:
-    Description: function permisos autentication
-    Value:
-      Fn::GetAtt:
-      - AuthorizationfunctionRole
-      - Arn
+      Fn::Sub: arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${AWS::StackId}

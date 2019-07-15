@@ -16,7 +16,7 @@ const authenticateCredentials = async(user, password) =>{
 		return findByCredentials(user, password)
 		.then(async(authUser) => {
 			console.log('VA A GENERAR TOKEN');
-			let token = generateAuthToken({_id:authUser._id.toString()})
+			let token = generateAuthToken({_id:authUser._id.toString(), rol:authUser.rol})
 			authUser.tokens = authUser.tokens.concat({ token })
 			await authUser.save()
 			console.log('LLEGO AQUI');
@@ -44,35 +44,7 @@ const findByCredentials = async (user, password) => {
     	}
     	return authUser
     })
-    // console.log(users);
-
-    // if (!user) {
-    //     throw new Error('user')
-    // }
-    // const isMatch = await bcrypt.compare(password, users.password)
-
-    // if (!isMatch) {
-    //     throw new Error('Unable to login')
-    // }
-
-    // return users
-}
-/* 
-const findByCredentials = async (user, password) => {
-    const users = await User.findOne({ user })
-    console.log(users);
-
-    if (!user) {
-        throw new Error('user')
-    }
-    const isMatch = await bcrypt.compare(password, users.password)
-
-    if (!isMatch) {
-        throw new Error('Unable to login')
-    }
-
-    return users
+  
 }
 
-*/
 module.exports = {saveUser,authenticateCredentials}
